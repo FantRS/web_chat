@@ -1,12 +1,11 @@
-use server::{core::app_error::AppResult, telemetry};
-use std::net::TcpListener;
+use std::process::ExitCode;
 
 #[tokio::main]
-async fn main() -> AppResult<()> {
-    dotenvy::dotenv().ok();
-    telemetry::init_logger("debug");
+async fn main() -> ExitCode {
+    if let Err(e) = server::start().await {
+        tracing::error!("CRITICAL SERVER ERROR: {}", e);
+        return ExitCode::FAILURE;
+    };
 
-    let lst = TcpListener::bind("127.0.0.1:8080")?;
-
-    server::run(lst).await
+    ExitCode::SUCCESS
 }

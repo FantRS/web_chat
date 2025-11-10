@@ -1,6 +1,6 @@
 use sqlx::{PgPool, postgres::PgPoolOptions};
 
-use crate::core::app_error::{AppError, AppResult};
+use crate::core::app_error::AppResult;
 
 pub async fn establish_connection<S>(database_url: S) -> AppResult<PgPool>
 where
@@ -19,13 +19,7 @@ where
 
     if is_run_migrate {
         tracing::info!("running migrations");
-
-        let migrate_res = sqlx::migrate!("./migrations").run(&pool).await;
-
-        if let Err(e) = migrate_res {
-            tracing::error!("Migration failed: {}", e);
-            return Err(AppError::MigrateError(e));
-        }
+        sqlx::migrate!("./migrations").run(&pool).await?;
     }
 
     Ok(pool)

@@ -22,4 +22,7 @@ pub enum AppError {
 
     #[error("Parse float error")]
     ParseFloatError(#[from] std::num::ParseFloatError),
+
+    #[error("Build config error")]
+    BuildConfigError,
 }

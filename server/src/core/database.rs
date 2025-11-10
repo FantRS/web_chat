@@ -6,7 +6,7 @@ pub async fn establish_connection<S>(database_url: S) -> AppResult<PgPool>
 where
     S: AsRef<str>,
 {
-    tracing::info!("Establishing database connection...");
+    tracing::info!("establishing database connection");
 
     let pool = PgPoolOptions::new()
         .max_connections(5)
@@ -18,7 +18,7 @@ where
         .parse()?;
 
     if is_run_migrate {
-        tracing::info!("Running migrations...");
+        tracing::info!("running migrations");
 
         let migrate_res = sqlx::migrate!("./migrations").run(&pool).await;
 

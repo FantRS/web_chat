@@ -13,7 +13,7 @@ pub async fn start() -> AppResult<()> {
 
     let pool = database::establish_connection(database_url).await?;
     let lst = TcpListener::bind("127.0.0.1:8080")?;
-    let app_data = AppData::new(pool);
+    let app_data = AppData::builder().with_pool(pool).build()?;
 
     server::run(lst, app_data).await?;
 

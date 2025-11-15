@@ -20,7 +20,9 @@ pub struct AppDataBuilder {
 
 impl AppDataBuilder {
     pub fn build(self) -> AppResult<AppData> {
-        let pool = self.pool.ok_or(AppError::Other("AppData building error".to_string()))?;
+        let pool = self
+            .pool
+            .ok_or(AppError::Other("AppData building error".to_string()))?;
 
         let app_data = AppData { pool };
 

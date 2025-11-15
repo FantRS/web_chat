@@ -1,3 +1,4 @@
+pub mod apis;
 pub mod app;
 pub mod core;
 pub mod telemetry;

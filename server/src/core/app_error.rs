@@ -14,6 +14,9 @@ pub enum AppError {
     #[error("VarError. Context: {0}")]
     VarError(#[from] std::env::VarError),
 
+    #[error("ConfigError. Context: {0}")]
+    ConfigError(#[from] config::ConfigError),
+
     #[error("ParseBoolError. Context: {0}")]
     ParseBoolError(#[from] std::str::ParseBoolError),
 

@@ -1,16 +1,16 @@
-use sqlx::{PgPool, postgres::PgPoolOptions};
+use sqlx::{
+    PgPool,
+    postgres::{PgConnectOptions, PgPoolOptions},
+};
 
 use crate::core::app_error::AppResult;
 
-pub async fn establish_connection<S>(database_url: S) -> AppResult<PgPool>
-where
-    S: AsRef<str>,
-{
+pub async fn connect(options: PgConnectOptions) -> AppResult<PgPool> {
     tracing::info!("establishing database connection");
 
     let pool = PgPoolOptions::new()
         .max_connections(5)
-        .connect(database_url.as_ref())
+        .connect_with(options)
         .await?;
 
     let is_run_migrate: bool = std::env::var("MIGRATE_RUN")

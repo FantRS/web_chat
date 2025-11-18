@@ -21,8 +21,10 @@ uuid = { version = "1.18.1", features = ["serde"] }
 tracing = "0.1.41"
 tracing-actix-web = "0.7.19"
 tracing-subscriber = { version = "0.3.20", features = ["env-filter", "json", "registry"] }
+
 dotenvy = "0.15.7"
 config = "0.15.19"
+bcrypt = "0.17.1"
 
 utoipa = { version = "5.4.0", features = ["chrono", "macros", "uuid"] }
 utoipa-swagger-ui = "9.0.2"

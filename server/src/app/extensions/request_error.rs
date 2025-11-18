@@ -1,9 +1,11 @@
+use std::borrow::Cow;
+
 use actix_web::{
     HttpResponse, ResponseError,
     http::{StatusCode, header::ContentType},
 };
 
-pub type RequestResult<T> = Result<T, RequestError>;
+pub type ReqResult<T> = Result<T, RequestError>;
 
 #[derive(Debug, thiserror::Error)]
 pub enum RequestError {

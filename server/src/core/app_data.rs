@@ -4,7 +4,7 @@ use crate::core::app_error::{AppError, AppResult};
 
 #[derive(Clone)]
 pub struct AppData {
-    pool: PgPool,
+    pub pool: PgPool,
 }
 
 impl AppData {

@@ -1,5 +1,6 @@
 use crate::app::request_error::RequestError;
 
+#[derive(Debug, Clone)]
 pub struct Email(String);
 
 impl TryFrom<String> for Email {
@@ -24,6 +25,7 @@ impl AsRef<str> for Email {
     }
 }
 
+#[derive(Debug, Clone)]
 pub struct Password(String);
 
 impl TryFrom<String> for Password {

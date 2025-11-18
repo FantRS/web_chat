@@ -29,7 +29,7 @@ pub enum RequestError {
     UnprocessableEntity(String),
 
     #[error("500 Internal Server Error: {0}")]
-    InternalServer(String),
+    InternalServerError(String),
 
     #[error("501 Not Implemented: {0}")]
     NotImplemented(String),
@@ -58,10 +58,30 @@ impl ResponseError for RequestError {
             RequestError::Conflict(_) => StatusCode::CONFLICT,
             RequestError::UnprocessableEntity(_) => StatusCode::UNPROCESSABLE_ENTITY,
 
-            RequestError::InternalServer(_) => StatusCode::INTERNAL_SERVER_ERROR,
+            RequestError::InternalServerError(_) => StatusCode::INTERNAL_SERVER_ERROR,
             RequestError::NotImplemented(_) => StatusCode::NOT_IMPLEMENTED,
             RequestError::BadGateway(_) => StatusCode::BAD_GATEWAY,
             RequestError::ServiceUnavailable(_) => StatusCode::SERVICE_UNAVAILABLE,
+        }
+    }
+}
+
+impl From<sqlx::Error> for RequestError {
+    fn from(error: sqlx::Error) -> Self {
+        match &error {
+            sqlx::Error::RowNotFound => RequestError::NotFound(error.to_string()),
+            sqlx::Error::Database(db_error) => {
+                let db_code = db_error.code().unwrap_or_default();
+                let db_error = db_code.to_string();
+
+                match db_code.as_ref() {
+                    "23502" => RequestError::BadRequest(db_error), // спроба впихнути NULL
+                    "23503" => RequestError::BadRequest(db_error), // неіснуючий елемент
+                    "23505" => RequestError::Conflict(db_error),   // дублікат значення
+                    _ => RequestError::InternalServerError(db_error),
+                }
+            }
+            _ => RequestError::InternalServerError(error.to_string()),
         }
     }
 }

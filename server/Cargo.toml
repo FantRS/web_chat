@@ -15,7 +15,7 @@ actix-cors = "0.7.1"
 actix-web = "4.11.0"
 
 sqlx = { version = "0.8.6", features = ["chrono", "postgres", "runtime-tokio", "uuid"] }
-chrono = "0.4.42"
+chrono = { version = "0.4.42", features = ["serde"] }
 uuid = { version = "1.18.1", features = ["serde"] }
 
 tracing = "0.1.41"
@@ -26,3 +26,4 @@ config = "0.15.19"
 
 utoipa = { version = "5.4.0", features = ["chrono", "macros", "uuid"] }
 utoipa-swagger-ui = "9.0.2"
+validator = "0.20.0"

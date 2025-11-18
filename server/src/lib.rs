@@ -3,10 +3,8 @@ pub mod app;
 pub mod core;
 pub mod telemetry;
 
-use core::{app_data::AppData, app_error::AppResult, database, server};
+use core::{app_config::AppConfig, app_data::AppData, app_error::AppResult, database, server};
 use std::net::TcpListener;
-
-use crate::core::app_config::AppConfig;
 
 pub async fn start() -> AppResult<()> {
     dotenvy::dotenv().ok();

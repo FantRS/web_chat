@@ -12,4 +12,8 @@ pub fn configure(cfg: &mut ServiceConfig) {
         web::resource("/users")
             .route(web::post().to(user_controller::create_user))
     );
+    cfg.service(
+        web::resource("/users/login")
+            .route(web::get().to(user_controller::login_user))
+    );
 }

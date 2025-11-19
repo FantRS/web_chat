@@ -1,16 +1,13 @@
 use sqlx::PgExecutor;
 use uuid::Uuid;
 
-use crate::app::{
-    models::users::{UserResponse, ValidUserRequest},
-    request_error::{ReqResult, RequestError},
-};
+use crate::app::{models::users::UserResponse, request_error::RequestResult};
 
-pub async fn get<'c, E>(user_id: Uuid, exec: E) -> ReqResult<UserResponse>
+pub async fn get<'c, E>(user_id: Uuid, exec: E) -> RequestResult<UserResponse>
 where
     E: PgExecutor<'c>,
 {
-    let user = sqlx::query_as!(
+    sqlx::query_as!(
         UserResponse,
         "SELECT id, email, password 
             FROM users 
@@ -18,9 +15,8 @@ where
         user_id
     )
     .fetch_one(exec)
-    .await?;
-
-    Ok(user)
+    .await
+    .map_err(From::from)
 }
 
 pub async fn get_by<'c, E>(exec: E)
@@ -29,19 +25,12 @@ where
 {
 }
 
-pub async fn create<'c, E>(user_req: ValidUserRequest, exec: E) -> ReqResult<Uuid>
+pub async fn create<'c, S1, S2, E>(email: S1, password: S2, exec: E) -> RequestResult<Uuid>
 where
+    S1: AsRef<str>,
+    S2: AsRef<str>,
     E: PgExecutor<'c>,
 {
-    let (email, password) = (
-        user_req
-            .email
-            .ok_or(RequestError::BadRequest("invalid email address".into()))?,
-        user_req
-            .password
-            .ok_or(RequestError::BadRequest("invalid user password".into()))?,
-    );
-
     sqlx::query_scalar!(
         "INSERT INTO users (email, password) 
             VALUES ($1, $2) 
@@ -60,7 +49,7 @@ where
 {
 }
 
-pub async fn delete<'c, E>(user_id: Uuid, exec: E) -> ReqResult<Uuid>
+pub async fn delete<'c, E>(user_id: Uuid, exec: E) -> RequestResult<Uuid>
 where
     E: PgExecutor<'c>,
 {

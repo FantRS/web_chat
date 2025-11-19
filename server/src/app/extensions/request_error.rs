@@ -1,11 +1,9 @@
-use std::borrow::Cow;
-
 use actix_web::{
     HttpResponse, ResponseError,
     http::{StatusCode, header::ContentType},
 };
 
-pub type ReqResult<T> = Result<T, RequestError>;
+pub type RequestResult<T> = Result<T, RequestError>;
 
 #[derive(Debug, thiserror::Error)]
 pub enum RequestError {
@@ -85,5 +83,11 @@ impl From<sqlx::Error> for RequestError {
             }
             _ => RequestError::InternalServerError(error.to_string()),
         }
+    }
+}
+
+impl From<bcrypt::BcryptError> for RequestError {
+    fn from(value: bcrypt::BcryptError) -> Self {
+        Self::InternalServerError(value.to_string())
     }
 }

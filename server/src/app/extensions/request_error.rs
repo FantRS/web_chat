@@ -78,6 +78,7 @@ impl From<sqlx::Error> for RequestError {
                     "23502" => RequestError::BadRequest(db_error), // спроба впихнути NULL
                     "23503" => RequestError::BadRequest(db_error), // неіснуючий елемент
                     "23505" => RequestError::Conflict(db_error),   // дублікат значення
+                    "42601" => RequestError::InternalServerError(db_error),
                     _ => RequestError::InternalServerError(db_error),
                 }
             }

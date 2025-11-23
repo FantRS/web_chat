@@ -29,3 +29,4 @@ bcrypt = "0.17.1"
 utoipa = { version = "5.4.0", features = ["chrono", "macros", "uuid"] }
 utoipa-swagger-ui = "9.0.2"
 validator = "0.20.0"
+expect-test = "1.5.1"

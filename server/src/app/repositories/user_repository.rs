@@ -3,7 +3,7 @@ use uuid::Uuid;
 
 use crate::app::{
     models::users::{UserResponse, ValidUpdateUserRequest},
-    request_error::RequestResult,
+    request_error::{RequestError, RequestResult},
 };
 
 pub async fn get<'c, E>(user_id: Uuid, exec: E) -> RequestResult<UserResponse>
@@ -60,13 +60,13 @@ where
     if let Some(email) = user.email {
         separated
             .push("email = ")
-            .push_bind(email.as_ref().to_owned());
+            .push_bind_unseparated(email.as_ref().to_owned());
     }
 
     if let Some(password) = user.password {
         separated
             .push("password = ")
-            .push_bind(password.as_ref().to_owned());
+            .push_bind_unseparated(password.as_ref().to_owned());
     }
 
     separated.push("updated_at = now()");
@@ -96,4 +96,85 @@ where
     .fetch_one(exec)
     .await
     .map_err(From::from)
+}
+
+#[cfg(test)]
+mod tests {
+    use expect_test::expect;
+    use sqlx::PgPool;
+
+    use crate::app::models::users::domain;
+
+    use super::*;
+
+    #[sqlx::test]
+    async fn test_create(pool: PgPool) {
+        let user_id = create("rost@gmail.com", "somepassword", &pool)
+            .await
+            .unwrap();
+
+        let exp = expect!["b9718440-81e6-424e-9bb9-5ca4e24beab4"];
+        exp.assert_eq(&user_id.to_string());
+    }
+
+    #[sqlx::test]
+    async fn test_get(pool: PgPool) {
+        let user_id = create("rost@gmail.com", "somepass", &pool).await.unwrap();
+        let exp = expect!["4179a268-fc1b-4c40-8e11-971451e7d26e"];
+        exp.assert_eq(&user_id.to_string());
+
+        let user = get(user_id, &pool).await.unwrap();
+        let exp = expect![[r#"
+            UserResponse {
+                id: 4179a268-fc1b-4c40-8e11-971451e7d26e,
+                email: "rost@gmail.com",
+                password: "somepass",
+            }"#]];
+        exp.assert_eq(&format!("{:#?}", user));
+    }
+
+    #[sqlx::test]
+    async fn test_delete(pool: PgPool) {
+        let user_id = create("rost@gmail.com", "somepass", &pool).await.unwrap();
+        let exp = expect!["5682386b-6f73-4f5d-a5be-5d7747973823"];
+        exp.assert_eq(&user_id.to_string());
+
+        let deleted_user_id = delete(user_id, &pool).await.unwrap();
+        let exp = expect!["5682386b-6f73-4f5d-a5be-5d7747973823"];
+        exp.assert_eq(&deleted_user_id.to_string());
+
+        let try_get_info = get(deleted_user_id, &pool).await;
+        assert!(try_get_info.is_err());
+    }
+
+    #[sqlx::test]
+    async fn test_patch(pool: PgPool) {
+        let user_id = create("rost@gmail.com", "somepass", &pool).await.unwrap();
+        let exp = expect!["9575ab6f-cac2-4844-ad89-9f27802c7bb8"];
+        exp.assert_eq(&user_id.to_string());
+
+        let user = get(user_id, &pool).await.unwrap();
+        let exp = expect![[r#"
+            UserResponse {
+                id: 9575ab6f-cac2-4844-ad89-9f27802c7bb8,
+                email: "rost@gmail.com",
+                password: "somepass",
+            }"#]];
+        exp.assert_eq(&format!("{:#?}", user));
+
+        let patch_info = ValidUpdateUserRequest {
+            email: Some("updatedRost@gmail.com".to_string().try_into().unwrap()),
+            password: Some("updatedPassword".to_string().try_into().unwrap()),
+        };
+
+        let patch_user_id = patch(user_id, patch_info, &pool).await.unwrap();
+        let patch_user = get(patch_user_id, &pool).await.unwrap();
+        let exp = expect![[r#"
+            UserResponse {
+                id: 9575ab6f-cac2-4844-ad89-9f27802c7bb8,
+                email: "updatedRost@gmail.com",
+                password: "updatedPassword",
+            }"#]];
+        exp.assert_eq(&format!("{:#?}", patch_user));
+    }
 }

@@ -9,10 +9,11 @@ impl TryFrom<String> for Email {
     fn try_from(value: String) -> Result<Self, Self::Error> {
         let is_valid = validator::ValidateEmail::validate_email(&value);
 
-        if is_valid {
-            return Err(RequestError::BadRequest(
-                "invalid email address".to_string(),
-            ));
+        if !is_valid {
+            return Err(RequestError::BadRequest(format!(
+                "invalid email address: {}",
+                value
+            )));
         }
 
         Ok(Email(value))

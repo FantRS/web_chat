@@ -1,7 +1,10 @@
-use sqlx::PgExecutor;
+use sqlx::{PgExecutor, Postgres};
 use uuid::Uuid;
 
-use crate::app::{models::users::UserResponse, request_error::RequestResult};
+use crate::app::{
+    models::users::{UserResponse, ValidUpdateUserRequest},
+    request_error::RequestResult,
+};
 
 pub async fn get<'c, E>(user_id: Uuid, exec: E) -> RequestResult<UserResponse>
 where
@@ -43,10 +46,41 @@ where
     .map_err(From::from)
 }
 
-pub async fn update<'c, E>(exec: E)
+pub async fn patch<'c, E>(
+    user_id: Uuid,
+    user: ValidUpdateUserRequest,
+    exec: E,
+) -> RequestResult<Uuid>
 where
     E: PgExecutor<'c>,
 {
+    let mut query_builder = sqlx::QueryBuilder::<Postgres>::new("UPDATE users SET ");
+    let mut separated = query_builder.separated(", ");
+
+    if let Some(email) = user.email {
+        separated
+            .push("email = ")
+            .push_bind(email.as_ref().to_owned());
+    }
+
+    if let Some(password) = user.password {
+        separated
+            .push("password = ")
+            .push_bind(password.as_ref().to_owned());
+    }
+
+    separated.push("updated_at = now()");
+
+    query_builder
+        .push(" WHERE id = ")
+        .push_bind(user_id)
+        .push(" RETURNING id");
+
+    query_builder
+        .build_query_scalar()
+        .fetch_one(exec)
+        .await
+        .map_err(From::from)
 }
 
 pub async fn delete<'c, E>(user_id: Uuid, exec: E) -> RequestResult<Uuid>

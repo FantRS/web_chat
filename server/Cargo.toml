@@ -24,9 +24,10 @@ tracing-subscriber = { version = "0.3.20", features = ["env-filter", "json", "re
 
 dotenvy = "0.15.7"
 config = "0.15.19"
-bcrypt = "0.17.1"
+validator = "0.20.0"
+expect-test = "1.5.1"
+argon2 = "0.5.3"
 
 utoipa = { version = "5.4.0", features = ["chrono", "macros", "uuid"] }
 utoipa-swagger-ui = "9.0.2"
-validator = "0.20.0"
-expect-test = "1.5.1"
+

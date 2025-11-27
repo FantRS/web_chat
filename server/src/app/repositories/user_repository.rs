@@ -3,7 +3,7 @@ use uuid::Uuid;
 
 use crate::app::{
     models::users::{UserResponse, ValidUpdateUserRequest},
-    request_error::{RequestError, RequestResult},
+    request_error::RequestResult,
 };
 
 pub async fn get<'c, E>(user_id: Uuid, exec: E) -> RequestResult<UserResponse>
@@ -102,8 +102,6 @@ where
 mod tests {
     use expect_test::expect;
     use sqlx::PgPool;
-
-    use crate::app::models::users::domain;
 
     use super::*;
 

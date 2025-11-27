@@ -87,8 +87,8 @@ impl From<sqlx::Error> for RequestError {
     }
 }
 
-impl From<bcrypt::BcryptError> for RequestError {
-    fn from(value: bcrypt::BcryptError) -> Self {
+impl From<argon2::password_hash::Error> for RequestError {
+    fn from(value: argon2::password_hash::Error) -> Self {
         Self::InternalServerError(value.to_string())
     }
 }

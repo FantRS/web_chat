@@ -29,3 +29,4 @@ pub enum AppError {
     #[error("OtherError. Context: {0}")]
     Other(String),
 }
+

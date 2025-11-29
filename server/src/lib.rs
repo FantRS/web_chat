@@ -11,10 +11,14 @@ pub async fn start() -> AppResult<()> {
     telemetry::init_logger("info");
 
     let config = AppConfig::configure()?;
+    let jwt_secret = std::env::var("JWT_SECRET")?;
 
     let pool = database::connect(config.database.options()).await?;
     let lst = TcpListener::bind(config.app.addr())?;
-    let app_data = AppData::builder().with_pool(pool).build()?;
+    let app_data = AppData::builder()
+        .with_pool(pool)
+        .with_jwt_secret(jwt_secret)
+        .build()?;
 
     server::run(lst, app_data).await?;
 

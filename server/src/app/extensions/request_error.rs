@@ -2,6 +2,7 @@ use actix_web::{
     HttpResponse, ResponseError,
     http::{StatusCode, header::ContentType},
 };
+use jsonwebtoken::errors::{Error as JwtError, ErrorKind as JwtErrorKind};
 
 pub type RequestResult<T> = Result<T, RequestError>;
 
@@ -90,5 +91,11 @@ impl From<sqlx::Error> for RequestError {
 impl From<argon2::password_hash::Error> for RequestError {
     fn from(value: argon2::password_hash::Error) -> Self {
         Self::InternalServerError(value.to_string())
+    }
+}
+
+impl From<JwtError> for RequestError {
+    fn from(value: JwtError) -> Self {
+        Self::Unauthorized(value.to_string())
     }
 }

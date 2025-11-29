@@ -1,4 +1,5 @@
 use serde::{Deserialize, Serialize};
+use uuid::Uuid;
 
 use crate::app::request_error::RequestError;
 
@@ -19,12 +20,10 @@ impl TryFrom<CreateUserRequest> for ValidCreateUserRequest {
     type Error = RequestError;
 
     fn try_from(value: CreateUserRequest) -> Result<Self, Self::Error> {
-        let valid_user = Self {
+        Ok(Self {
             email: value.email.try_into()?,
             password: value.password.try_into()?,
-        };
-
-        Ok(valid_user)
+        })
     }
 }
 
@@ -43,17 +42,37 @@ impl TryFrom<UpdateUserRequest> for ValidUpdateUserRequest {
     type Error = RequestError;
 
     fn try_from(value: UpdateUserRequest) -> Result<Self, Self::Error> {
-        let update_info = Self {
+        Ok(Self {
             email: value.email.map(domain::Email::try_from).transpose()?,
             password: value.password.map(domain::Password::try_from).transpose()?,
-        };
-
-        Ok(update_info)
+        })
     }
 }
 
 impl ValidUpdateUserRequest {
     pub fn is_empty(&self) -> bool {
         self.email.is_none() && self.password.is_none()
+    }
+}
+
+#[derive(Debug, Deserialize)]
+pub struct LoginUserRequest {
+    pub email: String,
+    pub password: String,
+}
+
+pub struct ValidLoginUserRequest {
+    pub email: domain::Email,
+    pub password: domain::Password,
+}
+
+impl TryFrom<LoginUserRequest> for ValidLoginUserRequest {
+    type Error = RequestError;
+
+    fn try_from(value: LoginUserRequest) -> Result<Self, Self::Error> {
+        Ok(Self {
+            email: value.email.try_into()?,
+            password: value.password.try_into()?,
+        })
     }
 }

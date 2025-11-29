@@ -17,6 +17,7 @@ actix-web = "4.11.0"
 sqlx = { version = "0.8.6", features = ["chrono", "postgres", "runtime-tokio", "uuid"] }
 chrono = { version = "0.4.42", features = ["serde"] }
 uuid = { version = "1.18.1", features = ["serde"] }
+jsonwebtoken = "9.3.1"
 
 tracing = "0.1.41"
 tracing-actix-web = "0.7.19"

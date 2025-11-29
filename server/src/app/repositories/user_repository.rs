@@ -2,17 +2,17 @@ use sqlx::{PgExecutor, Postgres};
 use uuid::Uuid;
 
 use crate::app::{
-    models::users::{UserResponse, ValidUpdateUserRequest},
+    models::users::{UserEntity, ValidUpdateUserRequest},
     request_error::RequestResult,
 };
 
-pub async fn get<'c, E>(user_id: Uuid, exec: E) -> RequestResult<UserResponse>
+pub async fn get<'c, E>(user_id: Uuid, exec: E) -> RequestResult<UserEntity>
 where
     E: PgExecutor<'c>,
 {
     sqlx::query_as!(
-        UserResponse,
-        "SELECT id, email, password 
+        UserEntity,
+        "SELECT *
             FROM users 
             WHERE id = $1",
         user_id
@@ -22,10 +22,20 @@ where
     .map_err(From::from)
 }
 
-pub async fn get_by<'c, E>(exec: E)
+pub async fn get_by_email<'c, S, E>(email: S, exec: E) -> RequestResult<UserEntity>
 where
     E: PgExecutor<'c>,
+    S: AsRef<str>,
 {
+    sqlx::query_as!(
+        UserEntity,
+        "SELECT * FROM users 
+            WHERE email = $1",
+        email.as_ref()
+    )
+    .fetch_one(exec)
+    .await
+    .map_err(From::from)
 }
 
 pub async fn create<'c, S1, S2, E>(email: S1, password: S2, exec: E) -> RequestResult<Uuid>
@@ -111,22 +121,44 @@ mod tests {
             .await
             .unwrap();
 
-        let exp = expect!["b9718440-81e6-424e-9bb9-5ca4e24beab4"];
+        let exp = expect!["a936afc8-6079-477a-98af-5c8c8620f67b"];
         exp.assert_eq(&user_id.to_string());
     }
 
     #[sqlx::test]
     async fn test_get(pool: PgPool) {
         let user_id = create("rost@gmail.com", "somepass", &pool).await.unwrap();
-        let exp = expect!["4179a268-fc1b-4c40-8e11-971451e7d26e"];
+        let exp = expect!["3d162d80-1916-43b0-9824-d45f29f31fd0"];
         exp.assert_eq(&user_id.to_string());
 
         let user = get(user_id, &pool).await.unwrap();
         let exp = expect![[r#"
-            UserResponse {
-                id: 4179a268-fc1b-4c40-8e11-971451e7d26e,
+            UserEntity {
+                id: 3d162d80-1916-43b0-9824-d45f29f31fd0,
                 email: "rost@gmail.com",
                 password: "somepass",
+                created_at: 2025-11-29T20:18:52.012315Z,
+                updated_at: 2025-11-29T20:18:52.012315Z,
+            }"#]];
+        exp.assert_eq(&format!("{:#?}", user));
+    }
+
+    #[sqlx::test]
+    async fn test_get_by_email(pool: PgPool) {
+        let email = "rost@gmail.com";
+
+        let user_id = create(email, "somepass", &pool).await.unwrap();
+        let exp = expect!["217a7634-cd89-4e3a-b58e-d10ff460323c"];
+        exp.assert_eq(&user_id.to_string());
+
+        let user = get_by_email(email, &pool).await.unwrap();
+        let exp = expect![[r#"
+            UserEntity {
+                id: 217a7634-cd89-4e3a-b58e-d10ff460323c,
+                email: "rost@gmail.com",
+                password: "somepass",
+                created_at: 2025-11-29T20:18:52.001497Z,
+                updated_at: 2025-11-29T20:18:52.001497Z,
             }"#]];
         exp.assert_eq(&format!("{:#?}", user));
     }
@@ -134,11 +166,11 @@ mod tests {
     #[sqlx::test]
     async fn test_delete(pool: PgPool) {
         let user_id = create("rost@gmail.com", "somepass", &pool).await.unwrap();
-        let exp = expect!["5682386b-6f73-4f5d-a5be-5d7747973823"];
+        let exp = expect!["c1fc0c91-c2fa-439a-bae7-82793f051be6"];
         exp.assert_eq(&user_id.to_string());
 
         let deleted_user_id = delete(user_id, &pool).await.unwrap();
-        let exp = expect!["5682386b-6f73-4f5d-a5be-5d7747973823"];
+        let exp = expect!["c1fc0c91-c2fa-439a-bae7-82793f051be6"];
         exp.assert_eq(&deleted_user_id.to_string());
 
         let try_get_info = get(deleted_user_id, &pool).await;
@@ -148,15 +180,17 @@ mod tests {
     #[sqlx::test]
     async fn test_patch(pool: PgPool) {
         let user_id = create("rost@gmail.com", "somepass", &pool).await.unwrap();
-        let exp = expect!["9575ab6f-cac2-4844-ad89-9f27802c7bb8"];
+        let exp = expect!["7949b2f2-ddac-477f-820d-b83edd5c6651"];
         exp.assert_eq(&user_id.to_string());
 
         let user = get(user_id, &pool).await.unwrap();
         let exp = expect![[r#"
-            UserResponse {
-                id: 9575ab6f-cac2-4844-ad89-9f27802c7bb8,
+            UserEntity {
+                id: 7949b2f2-ddac-477f-820d-b83edd5c6651,
                 email: "rost@gmail.com",
                 password: "somepass",
+                created_at: 2025-11-29T20:18:52.027833Z,
+                updated_at: 2025-11-29T20:18:52.027833Z,
             }"#]];
         exp.assert_eq(&format!("{:#?}", user));
 
@@ -168,10 +202,12 @@ mod tests {
         let patch_user_id = patch(user_id, patch_info, &pool).await.unwrap();
         let patch_user = get(patch_user_id, &pool).await.unwrap();
         let exp = expect![[r#"
-            UserResponse {
-                id: 9575ab6f-cac2-4844-ad89-9f27802c7bb8,
+            UserEntity {
+                id: 7949b2f2-ddac-477f-820d-b83edd5c6651,
                 email: "updatedRost@gmail.com",
                 password: "updatedPassword",
+                created_at: 2025-11-29T20:18:52.027833Z,
+                updated_at: 2025-11-29T20:18:52.064844Z,
             }"#]];
         exp.assert_eq(&format!("{:#?}", patch_user));
     }

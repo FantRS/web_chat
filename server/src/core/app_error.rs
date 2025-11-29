@@ -26,7 +26,12 @@ pub enum AppError {
     #[error("ParseFloatError. Context: {0}")]
     ParseFloatError(#[from] std::num::ParseFloatError),
 
+    #[error("Missing database pool field in AppData")]
+    MissingDatabasePool,
+
+    #[error("Missing JWT secret field in AppData")]
+    MissingJwtSecret,
+
     #[error("OtherError. Context: {0}")]
     Other(String),
 }
-

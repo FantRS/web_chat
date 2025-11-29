@@ -2,7 +2,11 @@ use actix_web::{HttpResponse, Responder, web};
 use uuid::Uuid;
 
 use crate::{
-    app::{models::users::CreateUserRequest, request_error::RequestResult, services::user_service},
+    app::{
+        models::users::{CreateUserRequest, LoginUserRequest},
+        request_error::RequestResult,
+        services::user_service,
+    },
     core::app_data::AppData,
 };
 
@@ -18,9 +22,16 @@ pub async fn get_user(
     Ok(HttpResponse::Ok().json(user))
 }
 
-// ? ? ?
-pub async fn login_user() -> RequestResult<impl Responder> {
-    Ok(HttpResponse::Ok())
+pub async fn login_user(
+    user: web::Json<LoginUserRequest>,
+    app_data: web::Data<AppData>,
+) -> RequestResult<impl Responder> {
+    let user = user.into_inner().try_into()?;
+    let app_data = app_data.into_inner();
+
+    let jsonwebtoken = user_service::login_user(user, &app_data.jwt_secret, &app_data.pool).await?;
+
+    Ok(HttpResponse::Ok().body(jsonwebtoken))
 }
 
 pub async fn create_user(
@@ -42,5 +53,7 @@ pub async fn delete_user(
     let user_id = user_id.into_inner();
     let app_data = app_data.into_inner();
 
-    Ok(HttpResponse::Ok())
+    let deleted_user_id = user_service::delete_user(user_id, &app_data.pool).await?;
+
+    Ok(HttpResponse::Ok().body(deleted_user_id.to_string()))
 }

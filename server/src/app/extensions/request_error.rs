@@ -2,43 +2,42 @@ use actix_web::{
     HttpResponse, ResponseError,
     http::{StatusCode, header::ContentType},
 };
-use jsonwebtoken::errors::{Error as JwtError, ErrorKind as JwtErrorKind};
 
 pub type RequestResult<T> = Result<T, RequestError>;
 
 #[derive(Debug, thiserror::Error)]
 pub enum RequestError {
-    #[error("400 Bad Request: {0}")]
+    #[error("400 Bad Request. Context: {0}")]
     BadRequest(String),
 
-    #[error("401 Unauthorized: {0}")]
+    #[error("401 Unauthorized. Context: {0}")]
     Unauthorized(String),
 
-    #[error("403 Forbidden: {0}")]
+    #[error("403 Forbidden. Context: {0}")]
     Forbidden(String),
 
-    #[error("404 Not Found: {0}")]
+    #[error("404 Not Found. Context: {0}")]
     NotFound(String),
 
-    #[error("405 Method Not Allowed: {0}")]
+    #[error("405 Method Not Allowed. Context: {0}")]
     MethodNotAllowed(String),
 
-    #[error("409 Conflict: {0}")]
+    #[error("409 Conflict. Context: {0}")]
     Conflict(String),
 
-    #[error("422 Unprocessable Entity: {0}")]
+    #[error("422 Unprocessable Entity. Context: {0}")]
     UnprocessableEntity(String),
 
-    #[error("500 Internal Server Error: {0}")]
+    #[error("500 Internal Server Error. Context: {0}")]
     InternalServerError(String),
 
-    #[error("501 Not Implemented: {0}")]
+    #[error("501 Not Implemented. Context: {0}")]
     NotImplemented(String),
 
-    #[error("502 Bad Gateway: {0}")]
+    #[error("502 Bad Gateway. Context: {0}")]
     BadGateway(String),
 
-    #[error("503 Service Unavailable: {0}")]
+    #[error("503 Service Unavailable. Context: {0}")]
     ServiceUnavailable(String),
 }
 
@@ -94,8 +93,8 @@ impl From<argon2::password_hash::Error> for RequestError {
     }
 }
 
-impl From<JwtError> for RequestError {
-    fn from(value: JwtError) -> Self {
+impl From<jsonwebtoken::errors::Error> for RequestError {
+    fn from(value: jsonwebtoken::errors::Error) -> Self {
         Self::Unauthorized(value.to_string())
     }
 }

@@ -13,6 +13,7 @@ where
         .with_file(false)
         .with_line_number(false)
         .with_target(false)
+        .with_span_list(false)
         .with_writer(std::io::stdout)
         .with_filter(filter_fn(|meta| {
             matches!(*meta.level(), Level::TRACE | Level::DEBUG | Level::INFO)
@@ -24,6 +25,7 @@ where
         .with_file(true)
         .with_line_number(true)
         .with_target(true)
+        .with_span_list(true)
         .with_writer(std::io::stderr)
         .with_filter(filter_fn(|meta| {
             matches!(*meta.level(), Level::WARN | Level::ERROR)

@@ -2,11 +2,11 @@ use sqlx::{PgExecutor, Postgres};
 use uuid::Uuid;
 
 use crate::app::{
-    models::users::{UserEntity, ValidUpdateUserRequest},
+    models::users::{UserEntity, ValidPatchUserRequest},
     request_error::RequestResult,
 };
 
-pub async fn get<'c, E>(user_id: Uuid, exec: E) -> RequestResult<UserEntity>
+pub async fn get<'c, E>(id: Uuid, exec: E) -> RequestResult<UserEntity>
 where
     E: PgExecutor<'c>,
 {
@@ -15,52 +15,45 @@ where
         "SELECT *
             FROM users 
             WHERE id = $1",
-        user_id
+        id
     )
     .fetch_one(exec)
     .await
     .map_err(From::from)
 }
 
-pub async fn get_by_email<'c, S, E>(email: S, exec: E) -> RequestResult<UserEntity>
+pub async fn get_by_email<'c, E>(email: &str, exec: E) -> RequestResult<UserEntity>
 where
     E: PgExecutor<'c>,
-    S: AsRef<str>,
 {
     sqlx::query_as!(
         UserEntity,
         "SELECT * FROM users 
             WHERE email = $1",
-        email.as_ref()
+        email
     )
     .fetch_one(exec)
     .await
     .map_err(From::from)
 }
 
-pub async fn create<'c, S1, S2, E>(email: S1, password: S2, exec: E) -> RequestResult<Uuid>
+pub async fn create<'c, E>(email: &str, password: &str, exec: E) -> RequestResult<Uuid>
 where
-    S1: AsRef<str>,
-    S2: AsRef<str>,
     E: PgExecutor<'c>,
 {
     sqlx::query_scalar!(
         "INSERT INTO users (email, password) 
             VALUES ($1, $2) 
             RETURNING id",
-        email.as_ref(),
-        password.as_ref()
+        email,
+        password
     )
     .fetch_one(exec)
     .await
     .map_err(From::from)
 }
 
-pub async fn patch<'c, E>(
-    user_id: Uuid,
-    user: ValidUpdateUserRequest,
-    exec: E,
-) -> RequestResult<Uuid>
+pub async fn patch<'c, E>(id: Uuid, user: ValidPatchUserRequest, exec: E) -> RequestResult<Uuid>
 where
     E: PgExecutor<'c>,
 {
@@ -83,7 +76,7 @@ where
 
     query_builder
         .push(" WHERE id = ")
-        .push_bind(user_id)
+        .push_bind(id)
         .push(" RETURNING id");
 
     query_builder
@@ -93,7 +86,7 @@ where
         .map_err(From::from)
 }
 
-pub async fn delete<'c, E>(user_id: Uuid, exec: E) -> RequestResult<Uuid>
+pub async fn delete<'c, E>(id: Uuid, exec: E) -> RequestResult<Uuid>
 where
     E: PgExecutor<'c>,
 {
@@ -101,7 +94,7 @@ where
         "DELETE FROM users 
             WHERE id = $1 
             RETURNING id",
-        user_id
+        id
     )
     .fetch_one(exec)
     .await
@@ -194,7 +187,7 @@ mod tests {
             }"#]];
         exp.assert_eq(&format!("{:#?}", user));
 
-        let patch_info = ValidUpdateUserRequest {
+        let patch_info = ValidPatchUserRequest {
             email: Some("updatedRost@gmail.com".to_string().try_into().unwrap()),
             password: Some("updatedPassword".to_string().try_into().unwrap()),
         };

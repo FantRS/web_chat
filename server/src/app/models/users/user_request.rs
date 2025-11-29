@@ -1,5 +1,4 @@
 use serde::{Deserialize, Serialize};
-use uuid::Uuid;
 
 use crate::app::request_error::RequestError;
 
@@ -28,20 +27,20 @@ impl TryFrom<CreateUserRequest> for ValidCreateUserRequest {
 }
 
 #[derive(Debug, Deserialize, Serialize)]
-pub struct UpdateUserRequest {
+pub struct PatchUserRequest {
     pub email: Option<String>,
     pub password: Option<String>,
 }
 
-pub struct ValidUpdateUserRequest {
+pub struct ValidPatchUserRequest {
     pub email: Option<domain::Email>,
     pub password: Option<domain::Password>,
 }
 
-impl TryFrom<UpdateUserRequest> for ValidUpdateUserRequest {
+impl TryFrom<PatchUserRequest> for ValidPatchUserRequest {
     type Error = RequestError;
 
-    fn try_from(value: UpdateUserRequest) -> Result<Self, Self::Error> {
+    fn try_from(value: PatchUserRequest) -> Result<Self, Self::Error> {
         Ok(Self {
             email: value.email.map(domain::Email::try_from).transpose()?,
             password: value.password.map(domain::Password::try_from).transpose()?,
@@ -49,7 +48,7 @@ impl TryFrom<UpdateUserRequest> for ValidUpdateUserRequest {
     }
 }
 
-impl ValidUpdateUserRequest {
+impl ValidPatchUserRequest {
     pub fn is_empty(&self) -> bool {
         self.email.is_none() && self.password.is_none()
     }

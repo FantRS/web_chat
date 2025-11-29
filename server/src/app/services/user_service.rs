@@ -9,7 +9,7 @@ use crate::app::{
     extensions::jwt_coding,
     middlewares::jwt::Claims,
     models::users::{
-        UserResponse, ValidCreateUserRequest, ValidLoginUserRequest, ValidUpdateUserRequest,
+        UserResponse, ValidCreateUserRequest, ValidLoginUserRequest, ValidPatchUserRequest,
     },
     repositories::user_repository,
     request_error::{RequestError, RequestResult},
@@ -59,12 +59,12 @@ pub async fn create_user(user: ValidCreateUserRequest, pool: &PgPool) -> Request
     let email = user.email.as_ref();
     let password_hash = generate_password_hash(user.password.as_ref().as_bytes())?;
 
-    user_repository::create(email, password_hash, pool).await
+    user_repository::create(email, password_hash.as_str(), pool).await
 }
 
 pub async fn patch_user(
     user_id: Uuid,
-    mut user: ValidUpdateUserRequest,
+    mut user: ValidPatchUserRequest,
     pool: &PgPool,
 ) -> RequestResult<Uuid> {
     if user.is_empty() {
@@ -74,7 +74,7 @@ pub async fn patch_user(
     if let Some(password) = user.password {
         let password_hash = generate_password_hash(password.as_ref().as_bytes())?;
 
-        user.password = password_hash.to_string().try_into().ok();
+        user.password = Some(password_hash.to_string().try_into()?);
     }
 
     user_repository::patch(user_id, user, pool).await

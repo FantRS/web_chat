@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Register - Web Chat</title>
+    <link rel="stylesheet" href="../css/styles.css" />
+    <link rel="stylesheet" href="../css/register.css" />
+</head>
+<body>
+    <div class="container-wide">
+        <div class="card">
+            <h2>Create Account</h2>
+            
+            <form id="registerForm" class="form-container">
+                <div id="successMessage" class="success"></div>
+                <div id="errorMessage" class="error"></div>
+
+                <div class="form-row">
+                    <!-- ЛІВА КОЛОНКА -->
+                    <div class="form-column">
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input 
+                                type="email" 
+                                id="email" 
+                                name="email"
+                                placeholder="your@email.com"
+                                required
+                            />
+                            <div id="emailError" class="error"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <input 
+                                type="password" 
+                                id="password" 
+                                name="password"
+                                placeholder="••••••••"
+                                required
+                            />
+                            <div id="passwordError" class="error"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="confirmPassword">Repeat Password</label>
+                            <input 
+                                type="password" 
+                                id="confirmPassword" 
+                                name="confirmPassword"
+                                placeholder="••••••••"
+                                required
+                            />
+                            <div id="confirmPasswordError" class="error"></div>
+                        </div>
+                    </div>
+
+                    <!-- ПРАВА КОЛОНКА -->
+                    <div class="form-column">
+                        <div class="form-group">
+                            <label for="name">Full Name</label>
+                            <input 
+                                type="text" 
+                                id="name" 
+                                name="name"
+                                placeholder="John Doe"
+                                required
+                            />
+                            <div id="nameError" class="error"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="age">Age</label>
+                            <input 
+                                type="number" 
+                                id="age" 
+                                name="age"
+                                placeholder="25"
+                                min="13"
+                                max="120"
+                                required
+                            />
+                            <div id="ageError" class="error"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <label for="description">Bio</label>
+                            <textarea 
+                                id="description" 
+                                name="description"
+                                placeholder="Tell us about yourself..."
+                            ></textarea>
+                            <div id="descriptionError" class="error"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="button-group">
+                    <button type="button" class="button button-secondary" id="backBtn">Back</button>
+                    <button type="submit" class="button button-primary">Register</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script src="../js/forms.js"></script>
+</body>
+</html>

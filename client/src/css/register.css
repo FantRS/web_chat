@@ -1,0 +1,53 @@
+/* ============================================
+   СПЕЦИФІЧНІ СТИЛІ ДЛЯ СТОРІНКИ REGISTER
+   ============================================ */
+
+.form-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 32px;
+  align-items: start;
+}
+
+.form-column {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.form-column:before {
+  content: '';
+  display: block;
+  position: absolute;
+  left: 50%;
+  top: 0;
+  bottom: 0;
+  width: 1px;
+  background: linear-gradient(180deg, transparent, var(--border-color), transparent);
+}
+
+/* Адаптивність */
+@media (max-width: 768px) {
+  .form-row {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .container-wide {
+    max-width: 480px;
+  }
+
+  .card {
+    padding: 32px 24px;
+  }
+}
+
+@media (max-width: 640px) {
+  .card {
+    padding: 24px 16px;
+  }
+
+  .button-group {
+    grid-template-columns: 1fr;
+  }
+}

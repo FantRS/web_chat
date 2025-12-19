@@ -1,10 +1,11 @@
 use serde::{Deserialize, Serialize};
+use utoipa::ToSchema;
 
 use crate::app::request_error::RequestError;
 
 use super::domain;
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, ToSchema)]
 pub struct CreateUserRequest {
     pub email: String,
     pub password: String,
@@ -26,7 +27,7 @@ impl TryFrom<CreateUserRequest> for ValidCreateUserRequest {
     }
 }
 
-#[derive(Debug, Deserialize, Serialize)]
+#[derive(Debug, Deserialize, Serialize, ToSchema)]
 pub struct PatchUserRequest {
     pub email: Option<String>,
     pub password: Option<String>,
@@ -54,7 +55,7 @@ impl ValidPatchUserRequest {
     }
 }
 
-#[derive(Debug, Deserialize)]
+#[derive(Debug, Deserialize, ToSchema)]
 pub struct LoginUserRequest {
     pub email: String,
     pub password: String,

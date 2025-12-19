@@ -16,7 +16,7 @@ impl TryFrom<String> for Email {
             )));
         }
 
-        Ok(Email(value))
+        Ok(Self(value))
     }
 }
 
@@ -33,15 +33,14 @@ impl TryFrom<String> for Password {
     type Error = RequestError;
 
     fn try_from(value: String) -> Result<Self, Self::Error> {
-        let is_valid = !value.is_empty() || value.len() < 256;
-
-        if !is_valid {
-            return Err(RequestError::BadRequest(
-                "invalid user password".to_string(),
-            ));
+        if value.is_empty() {
+            return Err(RequestError::BadRequest("Password is empty".into()));
+        }
+        if value.len() >= 256 {
+            return Err(RequestError::BadRequest("Password is too long".into()));
         }
 
-        Ok(Password(value))
+        Ok(Self(value))
     }
 }
 

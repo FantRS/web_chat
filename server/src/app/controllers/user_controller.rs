@@ -10,9 +10,8 @@ use crate::{
     core::app_data::AppData,
 };
 
-// e1615c0d-eca8-445b-9666-63be1ead3ed0
-
 #[tracing::instrument(name = "get_user", skip_all, fields(request_id = %Uuid::new_v4()))]
+#[utoipa::path(get, path = "/users/{id}", responses((status = 200, description = "user found successfully")))]
 pub async fn get_user(
     user_id: web::Path<Uuid>,
     app_data: web::Data<AppData>,
@@ -32,6 +31,7 @@ pub async fn get_user(
 }
 
 #[tracing::instrument(name = "login_user", skip_all, fields(request_id = %Uuid::new_v4()))]
+#[utoipa::path(get, path = "/users/login/", responses((status = 200, description = "JWT recieved successfully")))]
 pub async fn login_user(
     user: web::Json<LoginUserRequest>,
     app_data: web::Data<AppData>,
@@ -51,6 +51,7 @@ pub async fn login_user(
 }
 
 #[tracing::instrument(name = "create_user", skip_all, fields(request_id = %Uuid::new_v4()))]
+#[utoipa::path(post, path = "/users", responses((status = 201, description = "user created successfully")))]
 pub async fn create_user(
     user: web::Json<CreateUserRequest>,
     app_data: web::Data<AppData>,
@@ -70,6 +71,7 @@ pub async fn create_user(
 }
 
 #[tracing::instrument(name = "patch_user", skip_all, fields(request_id = %Uuid::new_v4()))]
+#[utoipa::path(patch, path = "/users/{id}", responses((status = 200, description = "user patched successfully")))]
 pub async fn patch_user(
     user: web::Json<PatchUserRequest>,
     user_id: web::Path<Uuid>,
@@ -91,6 +93,7 @@ pub async fn patch_user(
 }
 
 #[tracing::instrument(name = "delete_user", skip_all, fields(request_id = %Uuid::new_v4()))]
+#[utoipa::path(delete, path = "/users/{id}", responses((status = 200, description = "user deleted successfully")))]
 pub async fn delete_user(
     user_id: web::Path<Uuid>,
     app_data: web::Data<AppData>,

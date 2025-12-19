@@ -1,5 +1,5 @@
 use serde::Deserialize;
-use serde_with::{serde_as, DisplayFromStr};
+use serde_with::{DisplayFromStr, serde_as};
 use sqlx::postgres::PgConnectOptions;
 
 use crate::core::app_error::AppResult;
@@ -27,13 +27,17 @@ impl AppConfig {
 pub struct DatabaseSettings {
     #[serde(rename = "postgres_user")]
     user: String,
+
     #[serde(rename = "postgres_password")]
     password: String,
+
     #[serde(rename = "postgres_host")]
     host: String,
+
     #[serde_as(as = "DisplayFromStr")]
     #[serde(rename = "postgres_port")]
     port: u16,
+
     #[serde(rename = "postgres_db")]
     db_name: String,
 }
@@ -54,6 +58,7 @@ impl DatabaseSettings {
 pub struct AppSettings {
     #[serde(rename = "server_host")]
     host: String,
+
     #[serde_as(as = "DisplayFromStr")]
     #[serde(rename = "server_port")]
     port: u16,
